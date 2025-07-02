@@ -6,10 +6,14 @@ const server = http.createServer(app);
 const io = new Server(server)
 
 io.on("connection",(socket)=>{
-    console.log("user connected")
+    console.log("user connected.......")
+    socket.on('chat-message', (data) => {
+    socket.broadcast.emit('chat-message', data);
+
+});
 })
 server.listen(8000,()=>{
-    console.log("the server is running ")
+    console.log("the server is running.......")
 })
 
 app.use(express.static('public'));
