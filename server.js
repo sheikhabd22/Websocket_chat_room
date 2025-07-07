@@ -8,8 +8,8 @@ const io = new Server(server)
 io.on("connection",(socket)=>{
     console.log("user connected.......")
     socket.on('chat-message', (data) => {
+    console.log('Message from user:', data);
     socket.broadcast.emit('chat-message', data);
-
 });
 })
 server.listen(8000,()=>{
