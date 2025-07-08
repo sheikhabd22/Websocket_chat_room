@@ -1,17 +1,21 @@
 const mongoose = require("mongoose")
 const {Schema} = mongoose
-UserSchema = new Schema({
+ChatSchema = new Schema({
     username:{  
     type: String,
     required: true,
     unique: true
 },
-  passwordHash: {
+  message: {
     type: String,
     required: true
+  },
+  timestamp:{
+    type: Date,
+    default: Date.now
   }
 })
 
 
-mongoose.model('User', UserSchema)
-module.exports = user;
+mongoose.model('Chat', ChatSchema)
+module.exports = chat;
