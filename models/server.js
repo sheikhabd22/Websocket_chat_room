@@ -9,6 +9,8 @@ const User = require('./models/user.js');
 const encrypt = require("bcrypt")
 const jwt = require("jsonwebtoken");
 app.use(express.json());
+require("dotenv").config()
+
 
 //databse connection
 mongo.connect("mongodb://localhost:27017/chatapp",{ useNewUrlParser: true, useUnifiedTopology: true}).then(()=>{console.log("mongodb connected")})
@@ -47,10 +49,12 @@ app.post("/register",(async(req,res)=>{
         const hashpass = await encrypt.hash(password,10)
         await User.create({username,hashpass})
         res.status(201).json({ message: "User registered successfully" });
+        alert("User registered successfully")
     }
     catch(err){
         console.error(err);
         res.status(500).json({ message: "Internal server error" });
+        alert("Internal server error")
 
     }
 
@@ -58,6 +62,24 @@ app.post("/register",(async(req,res)=>{
 
 app.post("/login",(async(req,res)=>{
     try{
+        const {username,password}  = req.body
+        const user = await User.findOne({ username });
+        if(user===NaN){
+            return res.status(409).json({message:"Username already exists"})
+        }
+        else{
+            const match = await encrypt.compare(password, user.passwordHash);
+            if (match==True){
+                const token = jwt.sign({username:user.username},process.env.JWT_SECRET)
+                
+
+            }
+            else{
+                alert("Wrong password....please enter the correct password")
+            }
+            
+        }
+        
 
     }
     catch(err){

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form id="form">
+        <input type="text" id = "username_register" placeholder="enter your name">
+        <input type="password" id = "password_register" placeholder="enter a strong password">
+        <button>Submit</button>
+    </form>
+    <script>
+        const username = document.getElementById("username_register")
+        const password = document.getElementById("password_register")
+        const form = document.getElementById("form")
+
+        form.addEventListener("submit",async(e)=>{
+            e.preventDefault()
+            try{
+                 const response = await fetch ("/register",{
+                method:"POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ username:username.value,password:password.value }),
+            })
+                const data = await response.json()
+                console.log(data)
+            }
+            catch (e){
+                console.log("Unexpected error occured")
+
+            }
+        })
+
+    </script>
+</body>
+</html>
