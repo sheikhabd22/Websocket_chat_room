@@ -7,27 +7,31 @@
 </head>
 <body>
     <form id="form">
-        <input type="text" id = "username_register" placeholder="enter your name">
-        <input type="password" id = "password_register" placeholder="enter a strong password">
+        <input type="text" id = "username_login" placeholder="enter your name">
+        <input type="password" id = "password_login" placeholder="enter a strong password">
         <button>Submit</button>
     </form>
     <script>
-        const username = document.getElementById("username_register")
-        const password = document.getElementById("password_register")
+        const username = document.getElementById("username_login")
+        const password = document.getElementById("password_login")
         const form = document.getElementById("form")
 
         form.addEventListener("submit",async(e)=>{
             e.preventDefault()
             try{
-                 const response = await fetch ("/register",{
+                const response = await fetch ("/login",{
                 method:"POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ username:username.value,password:password.value }),
+        
             })
                 const data = await response.json()
                 console.log(data)
+                const token = data.token
+                localStorage.setItem("token",token)
+                window.location.href = "index.html"
             }
             catch (e){
                 console.log("Unexpected error occured")

@@ -8,6 +8,7 @@ const io = new Server(server)
 const User = require('./models/user.js');
 const encrypt = require("bcrypt")
 const jwt = require("jsonwebtoken");
+const { decode } = require("punycode");
 app.use(express.json());
 require("dotenv").config()
 
@@ -17,12 +18,22 @@ mongo.connect("mongodb://localhost:27017/chatapp",{ useNewUrlParser: true, useUn
 
 // mounting the web socket on the http server and accepting a socket object that acts as a unique thread for communication 
 io.on("connection",(socket)=>{
-    console.log("user connected.......")
-    socket.on('chat-message', (data) => {
-    console.log('Message from user:', data);
-    // emitting message 
-    socket.broadcast.emit('chat-message', data);
+    try{
+        const token = socket.handshake.auth.token
+        const decoded = jwt.verify(token,process.env.JWT_SECRET)
+        socket.user = decoded
+        console.log("user connected.......")
+        socket.on('chat-message', (data) => {
+        console.log('Message from user:', data);
+        // emitting message 
+        socket.broadcast.emit('chat-message', data);
 });
+    }
+    catch{
+        socket.emit('unauthorized')
+        socket.disconnect()
+    }
+
 })
 
 
@@ -49,12 +60,10 @@ app.post("/register",(async(req,res)=>{
         const hashpass = await encrypt.hash(password,10)
         await User.create({username,hashpass})
         res.status(201).json({ message: "User registered successfully" });
-        alert("User registered successfully")
     }
     catch(err){
         console.error(err);
         res.status(500).json({ message: "Internal server error" });
-        alert("Internal server error")
 
     }
 
@@ -64,18 +73,17 @@ app.post("/login",(async(req,res)=>{
     try{
         const {username,password}  = req.body
         const user = await User.findOne({ username });
-        if(user===NaN){
+        if(!user){
             return res.status(409).json({message:"Username already exists"})
         }
         else{
             const match = await encrypt.compare(password, user.passwordHash);
-            if (match==True){
+            if (match){
                 const token = jwt.sign({username:user.username},process.env.JWT_SECRET)
-                
-
+                return res.status(200).json({message:"login successful",token})
             }
             else{
-                alert("Wrong password....please enter the correct password")
+                return res.status(401).json({message:"could not login"})
             }
             
         }
@@ -89,6 +97,19 @@ app.post("/login",(async(req,res)=>{
     }
 
 }))
+
+app.post("/verify",async(req,res)=>{
+    try{
+        const {token} = req.body
+        const decoded = jwt.verify(token,process.env.JWT_SECRET)
+        if (decoded){
+            return res.status(200).json({message:"Token is Valid",user:decoded})
+        }
+    }
+    catch{
+       return res.status(401).json({ message: "Invalid token" });
+    }
+})
 
 
 

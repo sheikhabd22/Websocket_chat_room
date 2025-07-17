@@ -23,5 +23,32 @@
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="./client.js"></script>
+    <script>
+        const token = localStorage.getItem("token")
+        async function verifytoken(){
+                const response = await fetch ("/verify",{
+                method:"POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({token:token}),
+            })
+            const data = await response.json()
+            if(response.status ==401){
+                window.location.href ="login.html"
+            }
+            else{
+                console.log(data.message)
+            }
+
+        }
+        // auth for checking token
+        if(!token){
+            window.location.href = "login.html"
+        }
+        else{
+            verifytoken()
+        }
+    </script>
 </body>
 </html>

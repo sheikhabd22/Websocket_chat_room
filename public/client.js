@@ -1,4 +1,5 @@
-const socket = io()
+const token = localStorage.getItem("token")
+const socket = io({auth:{token}})
 socket.on("connect",()=>{
     console.log("connected")
 })
